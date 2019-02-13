@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities';
 import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
+import { ApiService } from '../../services/api.services';
+import { Product } from '../../services/product';
+import { isNgTemplate } from '@angular/compiler';
 
 @Component({
   templateUrl: 'dashboard.component.html'
@@ -9,6 +12,7 @@ import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 export class DashboardComponent implements OnInit {
 
   radioModel: string = 'Month';
+  data: Product[] = [];
 
   // lineChart1
   public lineChart1Data: Array<any> = [
@@ -212,7 +216,7 @@ export class DashboardComponent implements OnInit {
 
   // mainChart
 
-  public mainChartElements = 27;
+  public mainChartElements = 12;
   public mainChartData1: Array<number> = [];
   public mainChartData2: Array<number> = [];
   public mainChartData3: Array<number> = [];
@@ -220,15 +224,15 @@ export class DashboardComponent implements OnInit {
   public mainChartData: Array<any> = [
     {
       data: this.mainChartData1,
-      label: 'Current'
+      label: '2019'
     },
     {
       data: this.mainChartData2,
-      label: 'Previous'
+      label: '2018'
     },
     {
       data: this.mainChartData3,
-      label: 'BEP'
+      label: '2017'
     }
   ];
   /* tslint:disable:max-line-length */
@@ -236,9 +240,9 @@ export class DashboardComponent implements OnInit {
   /* tslint:enable:max-line-length */
   public mainChartOptions: any = {
     tooltips: {
-      enabled: false,
+      enabled: true,
       custom: CustomTooltips,
-      intersect: true,
+      intersect: false,
       mode: 'index',
       position: 'nearest',
       callbacks: {
@@ -256,7 +260,8 @@ export class DashboardComponent implements OnInit {
         },
         ticks: {
           callback: function(value: any) {
-            return value.charAt(0);
+            //return value.charAt(0);
+            return value;
           }
         }
       }],
@@ -264,8 +269,8 @@ export class DashboardComponent implements OnInit {
         ticks: {
           beginAtZero: true,
           maxTicksLimit: 5,
-          stepSize: Math.ceil(250 / 5),
-          max: 250
+          stepSize: Math.ceil(100 / 5),
+          max: 100
         }
       }]
     },
@@ -377,13 +382,41 @@ export class DashboardComponent implements OnInit {
   public random(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
+  constructor(private api: ApiService){
 
+  }
   ngOnInit(): void {
     // generate random values for mainChart
-    for (let i = 0; i <= this.mainChartElements; i++) {
+    this.api.getProducts()
+      .subscribe(res => {
+        this.data = res;
+        console.log(this.data);
+        //this.mainChartLabels=this.data.filter(item=>item.year==='2018').map(item=>item.month);
+        this.mainChartLabels= ['January', 'February', 'March', 'April', 'May', 'June', 'July','August','September','Octobor','November','December'];
+        this.fillChartDataForYear("2019",this.mainChartData1);
+        this.fillChartDataForYear("2018",this.mainChartData2);
+        this.fillChartDataForYear("2017",this.mainChartData3);
+      }, err => {
+        console.log(err);
+       // this.isLoadingResults = false;
+      });
+
+    /*for (let i = 0; i <= this.mainChartElements; i++) {
       this.mainChartData1.push(this.random(50, 200));
       this.mainChartData2.push(this.random(80, 100));
       this.mainChartData3.push(65);
+    }*/
+  }
+  private fillChartDataForYear(year:string,chartData:any){
+    let monthCounter=1;
+    for (let monthCounter = 1; monthCounter <= 12; monthCounter++) 
+    {
+      let item:any=this.data.filter(item=>item.year===year && item.month===monthCounter.toString());
+      
+      if (item.length>0) chartData.push(((item[0] as Product).sentiment*100).toFixed(2));
+      else
+        chartData.push(0);
     }
+
   }
 }
