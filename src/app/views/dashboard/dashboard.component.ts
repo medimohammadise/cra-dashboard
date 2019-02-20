@@ -1,18 +1,55 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities';
 import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 import { ApiService } from '../../services/api.services';
 import { Product } from '../../services/product';
 import { isNgTemplate } from '@angular/compiler';
+import { BaseChartDirective } from 'ng2-charts';
 
 @Component({
   templateUrl: 'dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
+  single: any[]=[];
+    /*{
+      "name": "Germany",
+      "value": 8940000
+    },
+    {
+      "name": "USA",
+      "value": 5000000
+    },
+    {
+      "name": "France",
+      "value": 7200000
+    }
+  ];*/
+  ageGroupColors: [
+    {name: '2017-11', value: '#5AA454'},
+  ];
+  multi: any[];
 
-  radioModel: string = 'Month';
+  view: any[] = [700, 400];
+
+  // options
+  showXAxis = true;
+  showYAxis = true;
+  gradient = false;
+  showLegend = true;
+  showXAxisLabel = true;
+  xAxisLabel = 'Year-Month';
+  showYAxisLabel = true;
+  yAxisLabel = 'Sentiment';
+
+  colorScheme = {
+    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
+  };
+
+
+  selectedChannel: string = 'Amazon';
   data: Product[] = [];
+  @ViewChild('baseChart') chart:BaseChartDirective;
 
   // lineChart1
   public lineChart1Data: Array<any> = [
@@ -383,19 +420,27 @@ export class DashboardComponent implements OnInit {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
   constructor(private api: ApiService){
-
+    //Object.assign(this, { single:this.single });
+    
   }
   ngOnInit(): void {
+   
+ 
     // generate random values for mainChart
-    this.api.getProducts()
+    this.api.getProducts(this.selectedChannel)
       .subscribe(res => {
         this.data = res;
-        console.log(this.data);
+        this.single=[{"name":"2019-1","series":[{"name":"Lazada","value":"59.64"}]},{"name":"2019-2","series":[{"name":"Lazada","value":"66.26"}]}];
+        
+
+        
         //this.mainChartLabels=this.data.filter(item=>item.year==='2018').map(item=>item.month);
         this.mainChartLabels= ['January', 'February', 'March', 'April', 'May', 'June', 'July','August','September','Octobor','November','December'];
+        
+        this.fillChartDataForYear("2017",this.mainChartData3);
         this.fillChartDataForYear("2019",this.mainChartData1);
         this.fillChartDataForYear("2018",this.mainChartData2);
-        this.fillChartDataForYear("2017",this.mainChartData3);
+        
       }, err => {
         console.log(err);
        // this.isLoadingResults = false;
@@ -408,6 +453,8 @@ export class DashboardComponent implements OnInit {
     }*/
   }
   private fillChartDataForYear(year:string,chartData:any){
+    
+    if (this.data.filter(item=>item.year===year).length>0){
     let monthCounter=1;
     for (let monthCounter = 1; monthCounter <= 12; monthCounter++) 
     {
@@ -416,7 +463,56 @@ export class DashboardComponent implements OnInit {
       if (item.length>0) chartData.push(((item[0] as Product).sentiment*100).toFixed(2));
       else
         chartData.push(0);
+      
     }
-
+   
   }
+  else
+  {
+     console.log("clearing the chart for year"+year); 
+     chartData=[];
+     
+  }
+  }
+  changeChannel(event:any){
+    this.api.getProducts(this.selectedChannel)
+    .subscribe(res => {
+      //this.mainChartLabels=[];
+      this.data = res;
+      console.log(this.data);
+      //this.mainChartLabels=this.data.filter(item=>item.year==='2018').map(item=>item.month);
+      //this.chart.data=[];
+      //this.chart.chart = 0;
+     
+      
+      this.single=[];
+
+      this.mainChartLabels= ['January', 'February', 'March', 'April', 'May', 'June', 'July','August','September','Octobor','November','December'];
+      this.data.forEach(item=>{
+        let myItem:any=this.single.filter(item=>item.name===item.year+"-"+item.month);
+        if (myItem.length>0)
+        {
+          myItem.value.push({"name":item.channel,value:(item.sentiment*100).toFixed(2)});
+          this.single.push({"name":item.year+"-"+item.month,"series": myItem.value});
+         
+         
+        }
+        else
+          this.single.push({"name":item.year+"-"+item.month,"series":[{"name":item.channel,"value": (item.sentiment*100).toFixed(2)}]});
+
+       });
+       console.log( JSON.stringify(this.single));
+
+      /*this.fillChartDataForYear("2017",this.mainChartData3);
+      this.fillChartDataForYear("2019",this.mainChartData1);
+      this.fillChartDataForYear("2018",this.mainChartData2);*/
+ // this.chart.datasets=this.mainChartData;
+    
+      
+    }, err => {
+      console.log(err);
+     // this.isLoadingResults = false;
+    });
+  }
+
 }

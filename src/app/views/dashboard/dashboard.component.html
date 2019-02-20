@@ -113,20 +113,36 @@
         <div class="col-sm-7 d-none d-md-block">
           <button type="button" class="btn btn-primary float-right"><i class="icon-cloud-download"></i></button>
           <div class="btn-group btn-group-toggle float-right mr-3" data-toggle="buttons">
-            <label class="btn btn-outline-secondary" [(ngModel)]="radioModel" btnRadio="Day" id="option1">Day</label>
-            <label class="btn btn-outline-secondary" [(ngModel)]="radioModel" btnRadio="Month" id="option2">Month</label>
-            <label class="btn btn-outline-secondary" [(ngModel)]="radioModel" btnRadio="Year" id="option3">Year</label>
+            <label class="btn btn-outline-secondary" [(ngModel)]="selectedChannel" btnRadio="Amazon" (click)="changeChannel($event)" id="option1">Amazon</label>
+            <label class="btn btn-outline-secondary" [(ngModel)]="selectedChannel" btnRadio="Lazada" (click)="changeChannel($event)" id="option2">Lazada</label>
+            <label class="btn btn-outline-secondary" [(ngModel)]="selectedChannel" btnRadio="Amazon,Lazada" (click)="changeChannel($event)" id="option3">Both</label>
           </div>
         </div><!--/.col-->
       </div><!--/.row-->
       <div class="chart-wrapper" style="height:300px;margin-top:40px;">
-        <canvas baseChart class="chart"
+       <!-- <canvas baseChart  #baseChart class="colorScheme"
         [datasets]="mainChartData"
         [labels]="mainChartLabels"
         [options]="mainChartOptions"
         [colors]="mainChartColours"
         [legend]="mainChartLegend"
-        [chartType]="mainChartType"></canvas>
+        [chartType]="mainChartType"></canvas>-->
+        <ngx-charts-bar-horizontal-2d
+  [view]="view"
+  
+  [customColors]="ageGroupColors"
+  [results]="single"
+  [gradient]="gradient"
+  [xAxis]="showXAxis"
+  [yAxis]="showYAxis"
+  [legend]="showLegend"
+  [showXAxisLabel]="showXAxisLabel"
+  [showYAxisLabel]="showYAxisLabel"
+  [xAxisLabel]="xAxisLabel"
+  [yAxisLabel]="yAxisLabel"></ngx-charts-bar-horizontal-2d>
+
+
+
       </div>
     </div>
     <div class="card-footer">

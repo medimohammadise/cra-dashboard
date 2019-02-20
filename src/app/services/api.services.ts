@@ -16,8 +16,8 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  getProducts (): Observable<Product[]> {
-    return this.http.get<Product[]>(apiUrl)
+  getProducts (channel): Observable<Product[]> {
+    return this.http.get<Product[]>(apiUrl+"/"+channel)
       .pipe(
         tap(products => console.log('Fetch products')),
         catchError(this.handleError('getProducts', []))
@@ -32,12 +32,12 @@ export class ApiService {
     );
   }
 
-  addProduct (product): Observable<Product> {
+  /*addProduct (product): Observable<Product> {
     return this.http.post<Product>(apiUrl, product, httpOptions).pipe(
       tap((product: Product) => console.log(`added product w/ id=${product._id}`)),
       catchError(this.handleError<Product>('addProduct'))
     );
-  }
+  }*/
 
   updateProduct (id, product): Observable<any> {
     const url = `${apiUrl}/${id}`;
