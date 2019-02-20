@@ -6,27 +6,16 @@ import { ApiService } from '../../services/api.services';
 import { Product } from '../../services/product';
 import { isNgTemplate } from '@angular/compiler';
 import { BaseChartDirective } from 'ng2-charts';
-
+import { CloudData, CloudOptions } from 'angular-tag-cloud-module';
+import { WordCloud } from '../../services/worldcould';
 @Component({
   templateUrl: 'dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
   single: any[]=[];
-    /*{
-      "name": "Germany",
-      "value": 8940000
-    },
-    {
-      "name": "USA",
-      "value": 5000000
-    },
-    {
-      "name": "France",
-      "value": 7200000
-    }
-  ];*/
+   
   ageGroupColors: [
-    {name: '2017-11', value: '#5AA454'},
+    {name: '2017-11', value: '#5AA454'}
   ];
   multi: any[];
 
@@ -46,9 +35,28 @@ export class DashboardComponent implements OnInit {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
   };
 
+  options: CloudOptions = {
+    // if width is between 0 and 1 it will be set to the size of the upper element multiplied by the value 
+    width : 1000,
+    height : 400,
+    overflow: false,
+  };
+ 
+  cloudData: CloudData[] = [
+    { text: 'Weight-8', weight: 8 },
+    // HTML-Element will have class 10 as 10 is the max. value in strict mode:
+    { text: 'Weight-12 -> Weight-10', weight: 12 },
+    // HTML-Element will have class 1 as 1 is the min. value in strict mode:
+    { text: 'Weight-0 -> Weight-1', weight: 0 },
+    // HTML-Element will have class 4 as floats are rounded to an int in strict mode:
+    { text: 'Weight-4.3 -> Weight-4', weight: 4.3 },
+    // ...
+  ];
+
 
   selectedChannel: string = 'Amazon';
   data: Product[] = [];
+  wordCloudresult:WordCloud[]=[];
   @ViewChild('baseChart') chart:BaseChartDirective;
 
   // lineChart1
@@ -440,6 +448,24 @@ export class DashboardComponent implements OnInit {
         this.fillChartDataForYear("2017",this.mainChartData3);
         this.fillChartDataForYear("2019",this.mainChartData1);
         this.fillChartDataForYear("2018",this.mainChartData2);
+        
+      }, err => {
+        console.log(err);
+       // this.isLoadingResults = false;
+      });
+
+      this.api.getWorldCould()
+      .subscribe(res => {
+        this.cloudData=res;
+        console.log(this.wordCloudresult);
+       /*this.wordCloudresult.forEach(item=>{
+          this.cloudData.push({"text":item.product,"weight":item.count });
+        });*/
+       
+
+        
+        //this.mainChartLabels=this.data.filter(item=>item.year==='2018').map(item=>item.month);
+        
         
       }, err => {
         console.log(err);

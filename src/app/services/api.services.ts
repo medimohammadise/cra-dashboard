@@ -3,7 +3,7 @@ import { Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { catchError, tap, map } from 'rxjs/operators';
 import { Product } from './product';
-
+import { WordCloud } from './worldcould';
 const httpOptions = {
   headers: new HttpHeaders({'Content-Type': 'application/json'})
 };
@@ -20,6 +20,13 @@ export class ApiService {
     return this.http.get<Product[]>(apiUrl+"/"+channel)
       .pipe(
         tap(products => console.log('Fetch products')),
+        catchError(this.handleError('getProducts', []))
+      );
+  }
+  getWorldCould(): Observable<WordCloud[]> {
+    return this.http.get<WordCloud[]>("http://localhost:8882/api/review/wordcloud")
+      .pipe(
+        tap(products => JSON.stringify(products)),
         catchError(this.handleError('getProducts', []))
       );
   }

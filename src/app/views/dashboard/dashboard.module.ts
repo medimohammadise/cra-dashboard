@@ -8,6 +8,7 @@ import { DashboardComponent } from './dashboard.component';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { CommonModule } from '@angular/common';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { TagCloudModule } from 'angular-tag-cloud-module';
 
 
 @NgModule({
@@ -18,6 +19,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
     BsDropdownModule,
     CommonModule,
     NgxChartsModule,
+    TagCloudModule,
     
     ButtonsModule.forRoot()
   ],
